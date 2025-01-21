@@ -1,0 +1,22 @@
+# Exclude build and obj directories
+/SliLib/bin/
+/SliLibConsole/bin/
+/SliLib/obj/
+/SliLibConsole/obj/
+/Old
+
+# Convert to whitelist - include with (!)
+*.*
+
+# Include specific file types
+!*.c
+!*.cs
+!*.css
+!*.cpp
+!*.sln
+!*.html
+!*.json
+!*.csproj
+!.gitignore
+!/.vscode
+!LICENSE

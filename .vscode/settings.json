@@ -6,23 +6,12 @@
   "files.insertFinalNewline": true,
   "files.trimFinalNewlines": true,
   "files.autoSave": "afterDelay",
-
-  "dotnet.defaultSolution": "SliLib.sln",
-
-  "files.exclude": {
-    "**/obj": true,
-    "**/bin": true
-  },
-
   //------------------------------------------------------------------------------
-
   // debug settings
   "debug.terminal.clearBeforeReusing": true,
   "debug.enableStatusBarColor": true,
   "debug.console.wordWrap": true,
-
   //------------------------------------------------------------------------------
-
   // explorer settings
   "explorer.openEditors.sortOrder": "editorOrder",
   "explorer.enableDragAndDrop": true,
@@ -31,15 +20,11 @@
   "explorer.compactFolders": true,
   "explorer.confirmDelete": false,
   "explorer.autoReveal": true,
-
   //------------------------------------------------------------------------------
-
   // security settings
   "security.workspace.trust.untrustedFiles": "open",
   "security.workspace.trust.banner": "always",
-
   //------------------------------------------------------------------------------
-
   // zen settings
   "zenMode.silentNotifications": true,
   "zenMode.hideActivityBar": false,
@@ -49,16 +34,12 @@
   "zenMode.hideStatusBar": true,
   "zenMode.fullScreen": true,
   "zenMode.restore": true,
-
   //------------------------------------------------------------------------------
-
   // window settings
   "window.newWindowDimensions": "inherit",
   "window.commandCenter": true,
   "window.zoomLevel": 0.3,
-
   //------------------------------------------------------------------------------
-
   // workbench settings
   "workbench.colorTheme": "Bearded Theme Black & Ruby Soft",
   "workbench.startupEditor": "welcomePageInEmptyWorkbench",
@@ -87,15 +68,11 @@
   "workbench.editor.enablePreview": true,
   "workbench.editor.tabSizing": "fixed",
   "workbench.editor.wrapTabs": true,
-
   //------------------------------------------------------------------------------
-
   // terminal settings
   "terminal.integrated.smoothScrolling": true,
   "terminal.integrated.cursorBlinking": true,
-
   //------------------------------------------------------------------------------
-
   // editor settings
   "editor.accessibilitySupport": "off",
   "editor.linkedEditing": true,
@@ -123,7 +100,6 @@
     "comments": "off",
     "strings": "off"
   },
-
   // formatting
   "editor.formatOnSaveMode": "file",
   "editor.defaultFormatter": null,
@@ -134,7 +110,6 @@
     "source.fixAll": "explicit",
     "source.sortImports": "explicit"
   },
-
   // language specific
   "[csharp]": {
     "editor.defaultFormatter": "ms-dotnettools.csharp"
@@ -162,21 +137,16 @@
   "[xaml]": {},
   "[yaml]": {},
   "[xml]": {},
-
   // rendering and highlighting
   "editor.bracketPairColorization.independentColorPoolPerBracketType": true,
   "editor.bracketPairColorization.enabled": true,
-
   "editor.unicodeHighlight.nonBasicASCII": false,
   "editor.semanticHighlighting.enabled": false,
   "editor.copyWithSyntaxHighlighting": true,
-
   "editor.renderControlCharacters": true,
   "editor.emptySelectionClipboard": true,
-
   "editor.padding.bottom": 0,
   "editor.padding.top": 16,
-
   "editor.wrappingIndent": "deepIndent",
   "editor.wrappingStrategy": "advanced",
   "editor.wordWrap": "wordWrapColumn",
@@ -283,7 +253,6 @@
       }
     ]
   },
-
   // mouse and scroll
   "editor.mouseWheelScrollSensitivity": 3,
   "editor.scrollbar.horizontal": "hidden",
@@ -293,34 +262,27 @@
   "output.smartScroll.enabled": true,
   "editor.fastScrollSensitivity": 8,
   "editor.smoothScrolling": true,
-
   // sticky scroll
   "editor.stickyScroll.defaultModel": "indentationModel",
   "editor.stickyScroll.scrollWithEditor": true,
   "editor.stickyScroll.maxLineCount": 6,
   "editor.stickyScroll.enabled": false,
-
   //------------------------------------------------------------------------------
-
   // extension settings
   // remote settings
   "remote.downloadExtensionsLocally": true,
   "remote.tunnels.access.preventSleep": true,
-
   // errorlens extension
   "errorLens.followCursor": "allLinesExceptActive",
   "errorLens.scrollbarHackEnabled": true,
-
   // git extension
   "git.autofetch": true,
   "git.autorefresh": true,
-
   // custom css and javascript to alter appearance of editor
   "vscode_custom_css.imports": [
     "file:///G:/Git%20Repos/Custom%20VScode%20repos/CustomCSS.css",
     "file:///G:/Git%20Repos/Custom%20VScode%20repos/CustomJS.js"
   ],
-
   // code spell checker extension
   "cSpell.language": "en, en-GB",
   "cSpell.caseSensitive": true,
@@ -349,15 +311,16 @@
     "Ents",
     "ents"
   ],
-
   // csharp settings
-  "omnisharp.organizeImportsOnFormat": true,
-  "omnisharp.enableEditorConfigSupport": false,
-  "csharp.format.enable": true,
-  "csharp.suppressDotnetInstallWarning": true,
-  "csharp.semanticHighlighting.enabled": false,
   "dotnet.typeMembers.propertyGenerationBehavior": "preferAutoProperties",
-  "dotnet.highlighting.highlightRelatedJsonComponents": false,
   "dotnet.highlighting.highlightRelatedRegexComponents": false,
-  "cSpell.words": ["crits", "Crits"]
+  "dotnet.highlighting.highlightRelatedJsonComponents": false,
+  "dotnet.testWindow.disableBuildOnRefresh": true,
+  "dotnet.defaultSolution": "SliLib.sln",
+  "omnisharp.enableMsBuildLoadProjectsOnDemand": false,
+  "omnisharp.enableEditorConfigSupport": false,
+  "csharp.semanticHighlighting.enabled": false,
+  "csharp.suppressDotnetInstallWarning": true,
+  "csharp.format.enable": true,
+  "dotnet.formatting.organizeImportsOnFormat": true,
 }

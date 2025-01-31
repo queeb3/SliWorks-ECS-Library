@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+<ItemGroup>
+      <ProjectReference Include="..\..\src\SliLib.Tools\SliLib.Tools.Debug\SliLib.Tools.Debug.csproj" />
+</ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PackageId>SliLib</PackageId>
+    <Version>1.0.0</Version><!--Official releases x.0.0 | Feature Additions & Updates 0.x.x-->
+    <LangVersion>12</LangVersion>
+    <Author>Slithe</Author>
+    <Description>Part of the greater SliLib framework handling the ECS core features.</Description>
+  </PropertyGroup>
+
+</Project>

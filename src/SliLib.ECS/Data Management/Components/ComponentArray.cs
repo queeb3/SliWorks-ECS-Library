@@ -1,6 +1,8 @@
+using System.Reflection;
+
 namespace SliLib.ECS;
 
-public interface IComponentArray
+public interface IComponentArray // still needed but only for storing and casting
 {
     public int AddDefault();
     public void SetDefault(int index);
@@ -9,7 +11,7 @@ public interface IComponentArray
     public bool Remove(int index);
     public int Count { get; }
 }
-public interface IGenericArray<T> : IComponentArray
+public interface IGenericArray<T> : IComponentArray // remove
 {
     public ref T Ref(int index);
     public int Add(T item);
@@ -23,19 +25,19 @@ public interface IGenericArray<T> : IComponentArray
 /// <typeparam name="T">Component struct</typeparam>
 public class ComponentArray<T> : IComponentArray, IGenericArray<T> where T : struct
 {
-    private T[] components;
-    private Stack<int> openSlots;
-    private int count;
-    private int capacity;
+    private T[] components; // convert to a single instance of T
+    private Stack<int> openSlots; // remove
+    private int count; // remove
+    private int capacity; // replace
 
     public int Count => count;
     public int Capacity => capacity;
     public int Free => capacity - count;
 
-    public ComponentArray(int initialCapacity = 16)
+    public ComponentArray(int initialCapacity = 16) // redesign
     {
         capacity = initialCapacity > 0 ? initialCapacity : throw new ArgumentException("Capacity must be greater than zero.");
-        components = new T[capacity];
+        components = new T[capacity]; // change to allow capacity
         openSlots = new Stack<int>();
         count = 0;
     }
@@ -53,15 +55,15 @@ public class ComponentArray<T> : IComponentArray, IGenericArray<T> where T : str
         set => components[index] = value;
     }
 
-    void IComponentArray.SetDefault(int index)
+    void IComponentArray.SetDefault(int index) // remove
     {
         this[index] = default;
     }
-    int IComponentArray.AddDefault() => Add(default);
-    object IComponentArray.GetBoxData(int index) => BoxData(index);
-    void IComponentArray.SetBoxAtIndex(int index, object box) => Unbox(index, box);
+    int IComponentArray.AddDefault() => Add(default); // remove
+    object IComponentArray.GetBoxData(int index) => BoxData(index); // remove
+    void IComponentArray.SetBoxAtIndex(int index, object box) => Unbox(index, box); // remove
 
-    public int Add(T component)
+    public int Add(T component) // remove in favor of direct index access for changing fields
     {
         int index;
         if (openSlots.Count > 0)
@@ -80,7 +82,7 @@ public class ComponentArray<T> : IComponentArray, IGenericArray<T> where T : str
         return index;
     }
 
-    public bool Remove(int index)
+    public bool Remove(int index) // same as add
     {
         if (!ValidateIndex(index, throwIfInvalid: false))
             return false;
@@ -92,7 +94,7 @@ public class ComponentArray<T> : IComponentArray, IGenericArray<T> where T : str
         return true;
     }
 
-    public ref T Ref(int index) // can cause a crash
+    public ref T Ref(int index) // alter to just get storage for direct access of indexed fields
     {
         if (!ValidateIndex(index, throwIfInvalid: true))
         {
@@ -102,7 +104,7 @@ public class ComponentArray<T> : IComponentArray, IGenericArray<T> where T : str
         return ref components[index];
     }
 
-    private bool ValidateIndex(int index, bool throwIfInvalid = true)
+    private bool ValidateIndex(int index, bool throwIfInvalid = true) // remove will no longer be needed
     {
         bool isValid = index >= 0 && index < capacity && !openSlots.Contains(index);
         if (!isValid && throwIfInvalid)
@@ -112,7 +114,7 @@ public class ComponentArray<T> : IComponentArray, IGenericArray<T> where T : str
         return isValid;
     }
 
-    private object BoxData(int index)
+    private object BoxData(int index) // remove
     {
         if (!ValidateIndex(index, throwIfInvalid: true))
             throw new IndexOutOfRangeException($"Invalid index {index} for ComponentArray<{typeof(T).Name}>.");
@@ -120,7 +122,7 @@ public class ComponentArray<T> : IComponentArray, IGenericArray<T> where T : str
         return components[index];
     }
 
-    private void Unbox(int index, object box) // before using ensure Add was called and the index from Add was retrieved
+    private void Unbox(int index, object box) // remove
     {
         if (!ValidateIndex(index, throwIfInvalid: true))
             throw new IndexOutOfRangeException($"Invalid index {index} for ComponentArray<{typeof(T).Name}>.");
@@ -135,7 +137,7 @@ public class ComponentArray<T> : IComponentArray, IGenericArray<T> where T : str
         }
     }
 
-    private void Resize()
+    private void Resize() // remove in favor of direct memory size allocation, create dodcumentation to let people know to be careful with capacity allocations
     {
         if (capacity < 1024) capacity *= 2;
         else if (capacity <= int.MaxValue) capacity += 256;

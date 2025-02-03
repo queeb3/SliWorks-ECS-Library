@@ -62,10 +62,10 @@ public class Chunk
 
     private static ChunkCode IdToCode(uint id)
     {
-        int chunkIndex = (int)(id / 64); // Determine the chunk index
+        int chunkIndex = (int)(id >> 6); // Determine the chunk index
         if (chunkIndex > 63) throw new IndexOutOfRangeException("Chunk size cannot exceed 64 total chunks.");
 
-        int bitIndex = (int)(id % 64); // Determine the bit position within the chunk
+        int bitIndex = (int)(id & 0b111111); // Determine the bit position within the chunk
         return new(chunkIndex, bitIndex);
     }
 }

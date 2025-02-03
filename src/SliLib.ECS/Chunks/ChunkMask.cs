@@ -5,7 +5,7 @@ public struct ChunkMask
 {
     public ulong ActiveChunks { get; private set; }
     public ulong[] ActiveBits { get; private set; }
-    public readonly bool IsEmpty => ActiveChunks == 0;
+    public readonly bool IsEmpty() => ActiveChunks == 0;
 
     public ChunkMask()
     {
@@ -60,13 +60,8 @@ public struct ChunkMask
 
     public bool Contains(ChunkCode code)
     {
-        if ((ActiveChunks & (1UL << code.Chunk)) == 0)
-            return false;
-
-        if ((ActiveBits[code.Chunk] & (1UL << code.Bit)) == 0)
-            return false;
-
-        return true;
+        return (ActiveChunks & (1UL << code.Chunk)) == 0
+            && (ActiveBits[code.Chunk] & (1UL << code.Bit)) == 0;
     }
 
     public ChunkMask AddChunkCode(ChunkCode code)

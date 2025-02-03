@@ -12,11 +12,11 @@ Now, here we are—a working ECS that’s mine. It’s simple, flexible, and hon
 
 ## Key Features
 
-- **Modular ECS Architecture**: Entities, components, and systems are completely separate, so you’re not stuck with spaghetti code when you make changes.
-- **Archetype System**: Think of this as grouping entities by what they have in common. It keeps things fast and organized.
-- **Component Management**: Components are easy to add, update, and remove. No bloat, just straightforward handling.
-- **Entity Lifecycle Management**: Central APIs for creating, deleting, and tagging entities. It’s smooth and saves you from manual headaches.
-- **Configurable Core**: You can tweak the system to fit your game without breaking a sweat.
+- **Decoupled Architecture**: The ECS framework maintains a strict separation between entities, components, and systems. This modular design prevents code entanglement and simplifies maintenance and scalability.
+- **Archetype-Based Organization**: Entities are efficiently grouped by shared components, enhancing system performance and logical structuring.
+- **Streamlined Component Management**: Provides an intuitive interface for adding, modifying, and removing components, reducing unnecessary complexity.
+- **Efficient Entity Lifecycle Handling**: A set of centralized APIs facilitate entity creation and deletion, minimizing redundant operations and ensuring smooth entity management.
+- **Highly Configurable Core**: The framework allows for extensive customization, enabling developers to adapt it to various game requirements.
 
 ## Directory Structure
 

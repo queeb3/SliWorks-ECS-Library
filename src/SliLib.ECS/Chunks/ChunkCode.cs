@@ -10,14 +10,12 @@ public readonly struct ChunkCode(int chunk, int bit)
         return $"{Chunk}|{Bit}";
     }
 
-    public override bool Equals(object? obj)
-    {
-        return obj is ChunkCode other && Chunk == other.Chunk && Bit == other.Bit;
-    }
+    public bool Equals(ChunkCode other) => Chunk == other.Chunk && Bit == other.Bit;
+    public override bool Equals(object? obj) => obj is ChunkCode other && Equals(other);
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(Chunk, Bit);
+        return (Chunk << 6) | Bit;
     }
 
     public static bool operator ==(ChunkCode left, ChunkCode right)
@@ -29,4 +27,6 @@ public readonly struct ChunkCode(int chunk, int bit)
     {
         return !(left == right);
     }
+
+
 }

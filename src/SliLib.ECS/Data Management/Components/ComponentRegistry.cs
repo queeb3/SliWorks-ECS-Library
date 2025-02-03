@@ -2,9 +2,9 @@ namespace SliLib.ECS;
 
 using SliLib.Tools.Debug;
 
-public class ComponentData // meta data for components
+public class ComponentRegistry // meta data for components
 {
-    public class Component(ChunkCode code, Type type, uint id)
+    public class ComponentInfo(ChunkCode code, Type type, uint id)
     {
         public readonly ChunkCode Code = code;
         public readonly Type Type = type;
@@ -16,18 +16,18 @@ public class ComponentData // meta data for components
         }
     }
 
-    private readonly Dictionary<uint, Component> iComponents;
-    private readonly Dictionary<Type, Component> tComponents;
-    private Chunk Chunk { get; }
+    private readonly Dictionary<uint, ComponentInfo> iComponents;
+    private readonly Dictionary<Type, ComponentInfo> tComponents;
+    public Chunk Chunk { get; private set; }
 
-    public ComponentData()
+    public ComponentRegistry()
     {
         Chunk = new();
         iComponents = [];
         tComponents = [];
     }
 
-    public ComponentData Add<T>(uint id) where T : struct
+    public ComponentRegistry Add<T>(uint id) where T : struct
     {
         if (tComponents.ContainsKey(typeof(T)) || iComponents.ContainsKey(id))
         {
@@ -35,32 +35,32 @@ public class ComponentData // meta data for components
         }
 
         var code = Chunk.Register<T>(id);
-        var component = new Component(code, typeof(T), id);
+        var component = new ComponentInfo(code, typeof(T), id);
 
         iComponents.Add(id, component);
         tComponents.Add(typeof(T), component);
 
-        Log.General($"New Component...~ {component} ~...was registered!");
+        Log.General($"New ComponentInfo...~ {component} ~...was registered!");
 
         return this;
     }
 
     public Chunk GetChunk() => Chunk;
-    public Component GetComponentInfo(uint id)
+    public ComponentInfo GetComponentInfo(uint id)
     {
         if (iComponents.TryGetValue(id, out var component))
             return component;
 
         throw new KeyNotFoundException($"No component found for ID {id}.");
     }
-    public Component GetComponentInfo(Type type)
+    public ComponentInfo GetComponentInfo(Type type)
     {
         if (tComponents.TryGetValue(type, out var component))
             return component;
 
         throw new KeyNotFoundException($"No component found for Type {type.Name}.");
     }
-    public Component GetComponentInfo<T>() where T : struct => GetComponentInfo(typeof(T));
+    public ComponentInfo GetComponentInfo<T>() where T : struct => GetComponentInfo(typeof(T));
 
     public bool ValidComponent(uint id)
     {

@@ -3,15 +3,15 @@ namespace SliLib.ECS;
 public class EntityManager
 {
     public EntityArray Entities { get; init; }
-    public ComponentData Components { get; init; }
+    public ComponentRegistry Components { get; init; }
     public ArchetypeRegistry Archetypes { get; init; }
 
-    public EntityManager(EntityArray? entities = null, ComponentData? compData = null, ArchetypeRegistry? archetypes = null)
+    public EntityManager(EntityArray? entities = null, ComponentRegistry? compData = null, ArchetypeRegistry? archetypes = null)
     {
         Console.WriteLine("Loading Entity Manager...");
 
         Entities = entities ?? new EntityArray();
-        Components = compData ?? new ComponentData();
+        Components = compData ?? new ComponentRegistry();
         Archetypes = archetypes ?? new ArchetypeRegistry();
 
         Console.WriteLine("Entity Manager Loaded!");

@@ -1,16 +1,21 @@
+using System.Numerics;
+
 namespace SliLib.ECS;
 
-using System.Numerics;
 public struct ChunkMask
 {
+    private static readonly int pad = Vector<ulong>.Count;
+
     public ulong ActiveChunks { get; private set; }
     public ulong[] ActiveBits { get; private set; }
-    public readonly bool IsEmpty() => ActiveChunks == 0;
+    private int hashCode;
 
     public ChunkMask()
     {
         ActiveChunks = 0b000000000000000000000000000000000000000000000000000000000000000;
-        ActiveBits = new ulong[64];
+        ActiveBits = new ulong[64 + pad];
+        hashCode = -1;
+        GetHashCode();
     }
 
     /// <summary>
@@ -21,15 +26,20 @@ public struct ChunkMask
     /// <c>true</c> if both <see cref="ChunkMask"/> instances have identical <c>ActiveChunks</c> and <c>ActiveBits</c>;
     /// otherwise, <c>false</c>.
     /// </returns>
-    public bool Matches(ChunkMask mask)
+    public readonly bool Matches(ChunkMask mask)
     {
         if (ActiveChunks != mask.ActiveChunks) return false;
 
-        ulong active = ActiveChunks;
-        for (int i = 0; active != 0; i++, active >>= 1)
+        int vectorSize = Vector<ulong>.Count;
+        int length = ActiveBits.Length;
+
+        // vectorized comparison loop
+        for (int i = 0; i < length; i += vectorSize)
         {
-            if ((active & 1UL) != 0 && ActiveBits[i] != mask.ActiveBits[i])
-                return false;
+            var vecA = new Vector<ulong>(ActiveBits, i);
+            var vecB = new Vector<ulong>(mask.ActiveBits, i);
+
+            if (!Vector.EqualsAll(vecA, vecB)) return false;
         }
 
         return true;
@@ -43,7 +53,7 @@ public struct ChunkMask
     /// <c>true</c> if all <c>ActiveChunks</c> and <c>ActiveBits</c> in the provided mask are also present in the current <see cref="ChunkMask"/>;
     /// otherwise, <c>false</c>.
     /// </returns>
-    public bool Contains(ChunkMask mask)
+    public readonly bool Contains(ChunkMask mask)
     {
         if ((ActiveChunks & mask.ActiveChunks) != mask.ActiveChunks) return false;
 
@@ -58,27 +68,37 @@ public struct ChunkMask
         return true;
     }
 
-    public bool Contains(ChunkCode code)
+    public readonly bool Contains(ChunkCode code)
     {
-        return (ActiveChunks & (1UL << code.Chunk)) == 0
-            && (ActiveBits[code.Chunk] & (1UL << code.Bit)) == 0;
+        return (ActiveChunks & (1UL << code.Chunk)) != 0
+            && (ActiveBits[code.Chunk] & (1UL << code.Bit)) != 0;
     }
 
-    public ChunkMask AddChunkCode(ChunkCode code)
+    public readonly bool IsEmpty() => ActiveChunks == 0;
+
+    public ChunkMask Add(ChunkCode code)
     {
         ActiveChunks |= 1UL << code.Chunk;
         ActiveBits[code.Chunk] |= 1UL << code.Bit;
+
+        hashCode = -1;
+        GetHashCode();
+
         return this;
     }
 
-    public ChunkMask RemChunkCode(ChunkCode code)
+    public ChunkMask Remove(ChunkCode code)
     {
-        ActiveChunks &= ~1UL << code.Chunk;
-        ActiveBits[code.Chunk] &= ~1UL << code.Bit;
+        ActiveChunks &= ~(1UL << code.Chunk);
+        ActiveBits[code.Chunk] &= ~(1UL << code.Bit);
+
+        hashCode = -1;
+        GetHashCode();
+
         return this;
     }
 
-    public IEnumerable<ChunkCode> Codes()
+    public readonly IEnumerable<ChunkCode> Codes()
     {
         for (int i = 0; i < ActiveBits.Length; i++)
         {
@@ -94,23 +114,16 @@ public struct ChunkMask
         }
     }
 
-    public override bool Equals(object? obj)
-    {
-        return obj is ChunkMask other &&
-               ActiveChunks == other.ActiveChunks &&
-               ActiveBits.SequenceEqual(other.ActiveBits);
-    }
+    public override readonly bool Equals(object? obj) => obj is ChunkMask other &&
+                                                ActiveChunks == other.ActiveChunks &&
+                                                ActiveBits.SequenceEqual(other.ActiveBits);
 
     public override int GetHashCode()
     {
-        int hash = ActiveChunks.GetHashCode();
+        if (hashCode != -1) return hashCode;
 
-        foreach (var bit in ActiveBits.Where(b => b != 0))
-        {
-            hash = HashCode.Combine(hash, bit);
-        }
-
-        return hash;
+        hashCode = ActiveBits.Aggregate(ActiveChunks.GetHashCode(), HashCode.Combine);
+        return hashCode;
     }
 
     public static bool operator ==(ChunkMask left, ChunkMask right)
@@ -123,7 +136,7 @@ public struct ChunkMask
         return !(left == right);
     }
 
-    public override string ToString()
+    public override readonly string ToString()
     {
         return $"Chunks: {Convert.ToString((long)ActiveChunks, 2).PadLeft(64, '0')}";
     }

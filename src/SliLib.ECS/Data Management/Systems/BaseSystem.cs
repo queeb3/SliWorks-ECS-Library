@@ -1,13 +1,11 @@
-namespace SliLib.ECS;
+// namespace SliLib.ECS;
 
-public abstract class BaseSystem
-{
-    public static Time Time => Nexus.Time;
+// public abstract class BaseSystem
+// {
+//     public static Time Time => Nexus.Time; // TODO make time static there should only be one instance at any given game
 
-    public abstract int Priority { get; } // higher numbers are ran last lower numbers are ran first
-    public abstract Query Query { get; }
-    public abstract void Update(); // every frame - required to override
-    public virtual void TickUpdate() { return; } // called only on tick frames - not required to override
-
-    // TODO conditional func, custom event, chaining
-}
+//     public virtual int Priority { get; }
+//     public virtual void Start() { return; } // load before loop
+//     public virtual void Update() { return; } // frame
+//     public virtual void TickUpdate() { return; } // timed
+// }

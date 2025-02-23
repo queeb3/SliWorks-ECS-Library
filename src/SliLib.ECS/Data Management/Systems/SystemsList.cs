@@ -1,47 +1,47 @@
-namespace SliLib.ECS;
+// namespace SliLib.ECS;
 
-using SliLib.Tools.Debug;
+// using SliLib.Tools.Debug;
 
-public class SystemsList
-{
-    private readonly SortedList<int, BaseSystem> SortedSystems;
+// public class SystemsList
+// {
+//     private readonly SortedList<int, BaseSystem> SortedSystems;
 
-    public SystemsList()
-    {
-        Log.General("Loading SystemList...");
+//     public SystemsList()
+//     {
+//         Log.General("Loading SystemList...");
 
-        SortedSystems = [];
+//         SortedSystems = [];
 
-        Console.WriteLine("SystemList Loaded!");
-    }
+//         Console.WriteLine("SystemList Loaded!");
+//     }
 
-    public bool Add(BaseSystem system)
-    {
-        if (SortedSystems.ContainsKey(system.Priority))
-        {
-            Console.WriteLine($"A system with priority {system.Priority} already exists.");
-        }
+//     public bool Add(BaseSystem system)
+//     {
+//         if (SortedSystems.ContainsKey(system.Priority))
+//         {
+//             Console.WriteLine($"A system with priority {system.Priority} already exists.");
+//         }
 
-        Log.General($"System {system.GetType().Name} was registered!");
+//         Log.General($"System {system.GetType().Name} was registered!");
 
-        return SortedSystems.TryAdd(system.Priority, system);
-    }
+//         return SortedSystems.TryAdd(system.Priority, system);
+//     }
 
-    public void Add(params BaseSystem[] systems)
-    {
-        foreach (BaseSystem system in systems)
-        {
-            Add(system);
-        }
-    }
+//     public void Add(params BaseSystem[] systems)
+//     {
+//         foreach (BaseSystem system in systems)
+//         {
+//             Add(system);
+//         }
+//     }
 
-    public bool Remove(BaseSystem system)
-    {
-        return SortedSystems.Remove(system.Priority);
-    }
+//     public bool Remove(BaseSystem system)
+//     {
+//         return SortedSystems.Remove(system.Priority);
+//     }
 
-    public IEnumerable<BaseSystem> GetSystems()
-    {
-        return SortedSystems.Values;
-    }
-}
+//     public IEnumerable<BaseSystem> GetSystems()
+//     {
+//         return SortedSystems.Values;
+//     }
+// }

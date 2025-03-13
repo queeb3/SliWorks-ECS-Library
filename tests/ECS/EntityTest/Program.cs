@@ -14,15 +14,12 @@ class Program
 
         Console.WriteLine($"start: ecount={ents.Count}, bcount={ents.BCount}, cap={ents.Capacity}, resizable={ents.Resizable}");
 
-        InfoTest(ref ents);
-        CreateTest(ref ents);
-        DestroyTest(ref ents);
-        LoopCreateTest(ref ents, 512 * 100000); // 50 mil test
-        LoopCreateDestroyTest(ref ents, 512 * 100000); // 50 mil test
-
-
+        // InfoTest(ref ents);
+        // CreateTest(ref ents);
+        // DestroyTest(ref ents);
+        LoopCreateTest(ref ents, 512 * 1_000_000); // 512 mil test
+        // LoopCreateDestroyTest(ref ents, 512 * 100000); // 50 mil test
     }
-
 
     static void RegState(ref EntityRegister reg, int capOverwrite = 16)
     {
@@ -32,7 +29,7 @@ class Program
 
     static void CreateTest(ref EntityRegister reg) // see if i can create a fresh entity
     {
-        var id = reg.Create();
+        var id = reg.Create(out var info);
         Console.WriteLine($"CreateTest: entity {id} was created.");
         RegState(ref reg);
     }
@@ -48,7 +45,7 @@ class Program
         b = reg.GenerateInfoFromId(9999999, out info);
         Console.WriteLine($"InfoTest: infoID={info.Id} | was valid? {b}");
 
-        var id = reg.Create();
+        var id = reg.Create(out var ei);
         b = reg.GenerateInfoFromId(id, out info);
         Console.WriteLine($"InfoTest: infoID={info.Id} | was valid? {b}");
         reg.Destroy(id);
@@ -62,7 +59,7 @@ class Program
         var sw = Stopwatch.StartNew();
         for (int i = 0; i < runs; i++)
         {
-            reg.Create();
+            reg.Create(out var info);
         }
 
         Console.WriteLine($"LoopCreateTest: count={reg.Count} | block={reg.BCount} | time={sw.Elapsed}");
@@ -83,30 +80,30 @@ class Program
     static void LoopCreateDestroyTest(ref EntityRegister reg, int runs)
     {
         var ctr = 0;
+        var missTracker = 0;
         var rnd = new Random();
         var sw = Stopwatch.StartNew();
         for (int i = 0; i < runs; i++)
         {
             ctr++;
-            reg.Create();
+            missTracker++;
+            reg.Create(out var info);
             if (ctr == 16) // 320000 destroys roughly
             {
                 reg.Destroy(rnd.Next(0, i));
                 ctr = 0;
-                if (i >= runs * .75) ctr = 17;
+                if (i >= runs / 2) ctr = 17;
+            }
+
+            if (missTracker >= 500_000)
+            {
+                missTracker = 0;
+                Console.WriteLine($"CDTest: Unfilled={reg.DebugMC()} | MissingBits={reg.DebugMCB()} | Blocks={reg.BCount} | Ents={reg.Count} | TimeElapsed={sw.Elapsed}");
             }
         }
 
-        Console.WriteLine($"LoopCDTest: count={reg.Count} | block={reg.BCount} | time={sw.Elapsed}");
+        Console.WriteLine($"LoopCDTest: count={reg.Count} | block={reg.BCount} | time={sw.Elapsed} | missing={reg.DebugMC()} | totalMissingEntries={reg.DebugMCB()}");
 
-        RegState(ref reg);
+        // RegState(ref reg);
     }
-
-    /*
-    What should I test?
-
-    generate up the the max entities without issue?
-
-    does auto resizing function without performance hits?
-    */
 }

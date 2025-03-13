@@ -39,9 +39,9 @@ internal struct EntityBlock
     {
         // the check for valid indexes happens above
         var bit = index & 0b111111;
-        var byteIndex = index >> 6;
+        var ulongIndex = index >> 6;
 
-        return (ulongs[byteIndex] >> bit) & 1UL;
+        return (ulongs[ulongIndex] >> bit) & 1UL;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -82,6 +82,16 @@ public class EntityRegister
     private bool[] fullBlocks;
     private EntityBlock[] blocks;
     private readonly Dictionary<int, int> missingBits;
+    public int DebugMC() => missingBits.Keys.Count;
+    public int DebugMCB()
+    {
+        int ret = 0;
+        foreach (var ctr in missingBits.Values)
+        {
+            ret += ctr;
+        }
+        return ret;
+    }
 
     private int firstUnfilledBlock;
 
@@ -120,7 +130,7 @@ public class EntityRegister
     /// <returns>
     /// The unique entity ID (`int`) assigned to the new entity.
     /// </returns>
-    public int Create()
+    public int Create(out EntityInfo info)
     {
         ref var block = ref FirstUnfilledBlock(out var bIndex);
 
@@ -131,6 +141,8 @@ public class EntityRegister
         if (bitIndex == blockOffset - 1) fullBlocks[bIndex] = true;
         block.Set(blockId);
         Count++;
+
+        info = new EntityInfo(index);
         return index;
     }
 
@@ -161,6 +173,7 @@ public class EntityRegister
 
         if (blockIndex < firstUnfilledBlock) firstUnfilledBlock = blockIndex;
     }
+    public void Destroy(EntityInfo info) => Destroy(info.Id);
 
     /// <summary>
     /// Retrieves metadata for an existing entity, if it is currently active. <br/>
@@ -240,7 +253,7 @@ public class EntityRegister
     private ref EntityBlock CreateNewBlock(out int newBIndex)
     {
         if (!Resizable && BCount == Capacity) throw new EntityLimitReachedException();
-        else if (BCount == Capacity) Resize();
+        else if (BCount >= Capacity) Resize();
 
         blocks[BCount++] = new();
         newBIndex = BCount - 1;
@@ -266,13 +279,9 @@ public class EntityRegister
 
     private void Resize()
     {
-        int newSize = Capacity * 2;
-        var newBlocks = GC.AllocateUninitializedArray<EntityBlock>(newSize);
-        var newFull = GC.AllocateUninitializedArray<bool>(newSize);
-        Array.Copy(blocks, newBlocks, blocks.Length);
-        Array.Copy(fullBlocks, newFull, fullBlocks.Length);
-        blocks = newBlocks;
-        fullBlocks = newFull;
+        int newSize = Capacity + (Capacity / 2);
+        Array.Resize(ref blocks, newSize);
+        Array.Resize(ref fullBlocks, newSize);
         Capacity = newSize;
     }
 }

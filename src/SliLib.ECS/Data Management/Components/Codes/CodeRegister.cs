@@ -1,10 +1,11 @@
 namespace SliLib.ECS;
 
-internal class Chunk
+internal class CodeRegister
 {
     public ulong Chunks { get; private set; } = 0b0000000000000000000000000000000000000000000000000000000000000000;
     public ulong[] ChunkBits { get; private set; } = new ulong[64];
     public const int MaxComponents = 4096;
+    public ChunkMask BaseMask { get; private set; } = new(); // allows to see if a mask is allowed from this register.
 
     public ChunkCode Register(int id)
     {
@@ -12,6 +13,8 @@ internal class Chunk
 
         SetChunk(code.Chunk);
         SetBit(code.Chunk, code.Bit);
+
+        BaseMask = BaseMask.Add(code);
 
         return code;
     }

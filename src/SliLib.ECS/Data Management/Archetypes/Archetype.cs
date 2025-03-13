@@ -1,182 +1,113 @@
-// namespace SliLib.ECS;
+namespace SliLib.ECS;
 
-// public class Archetype
-// {
-//     private static int archCount = 0;
-//     private static int Increment() => ++archCount;
-//     public int Id { get; }
+public class Archetype
+{
+    public int Id { get; internal set; }
 
-//     private Dictionary<Type, IComponentArray> arrays;
-//     private Dictionary<int, int> globalToLocal;
-//     private Stack<int> openSlots;
-//     private int count;
+    private readonly ComponentSetTemplate Template;
 
-//     public int Count => count;
+    private Chunk[] Chunks;
+    private readonly BitIndexer indexer;
+    public int Count { get; private set; }
+    public int EntCount { get; private set; }
+    public int Capacity { get; private set; }
 
-//     public Archetype()
-//     {
-//         Id = Increment();
-//         arrays = [];
-//         openSlots = [];
-//         globalToLocal = [];
-//         count = 0;
-//     }
 
-//     public Archetype(Dictionary<Type, IComponentArray> array)
-//     {
-//         Id = Increment();
-//         arrays = array;
-//         openSlots = [];
-//         globalToLocal = [];
-//         count = 0;
-//     }
+    public int EntityCap => Template.Capacity * Count;
+    public int SizeOfArchetype() => (Chunks[0].Set.SizeOfSet * Count) + (EntityCap * sizeof(int));
 
-//     public int AddEnt(int entIndex) // returns local index
-//     {
-//         int index;
-//         if (openSlots.Count != 0)
-//         {
-//             index = openSlots.Pop();
-//             // no generation needed since index is already populated
-//         }
-//         else
-//         {
-//             index = count;
-//             SetDefaults(index);
-//         }
+    public Archetype(ComponentSetTemplate template, int capacity = 512)
+    {
+        Template = template;
+        Capacity = capacity;
+        Chunks = new Chunk[Capacity];
+        for (int i = 0; i < capacity; i++)
+        {
+            Chunks[i] = new(template.Clone(), i);
+            Count++;
+        }
 
-//         globalToLocal.Add(entIndex, index);
-//         count++;
-//         return index;
-//     }
+        indexer = new(capacity);
+    }
 
-//     public bool RemoveEnt(int entIndex) // removes based on global index
-//     {
-//         if (globalToLocal.TryGetValue(entIndex, out var index))
-//         {
-//             openSlots.Push(index);
-//             globalToLocal.Remove(entIndex);
-//             ResetDefaults(index);
+    public void Add(EntityInfo info)
+    {
+        var chunk = indexer.FindFreeIndex();
+        if (chunk == Capacity - 1) Expand();
 
-//             count--;
-//             return true;
-//         }
+        var full = Chunks[chunk].AddEntity(info);
 
-//         return false;
-//     }
+        if (full == -1)
+        {
+            indexer.Set(chunk);
+            Add(info);
+        }
+        EntCount++;
+        info.ArchetypeId = Id;
+    }
 
-//     public BoxedEnt BoxEntity(int entIndex)
-//     {
-//         if (!ContainsEnt(entIndex))
-//         {
-//             throw new ArgumentException($"Entity {entIndex} cannot be boxed because it does not exist in this archetype.");
-//         }
+    public int Remove(EntityInfo info)
+    {
+        var chunkIndex = info.ChunkIndex;
 
-//         int local = GetLocalIndex(entIndex);
 
-//         BoxedEnt ent = new(entIndex, local);
-//         ent.BoxArchComps(this); // store local data
+        return Chunks[chunkIndex].RemoveEntity(info);
+    }
 
-//         RemoveEnt(entIndex); // clear local data
-//         return ent;
-//     }
+    internal Chunk[] GetChunks() => Chunks;
 
-//     public void UnBoxEnt(BoxedEnt box)
-//     {
-//         int local = AddEnt(box.GlobalIndex); // set default components
+    public ref T Get<T>(EntityInfo entity) where T : struct
+    {
+        return ref Chunks[entity.ChunkIndex].Set.Edit<T>(entity.LocalId);
+    }
 
-//         foreach (var (type, array) in arrays)
-//         {
-//             if (box.Contains(type))
-//             {
-//                 object comp = box.GetBoxedComponent(type);
-//                 array.SetBoxAtIndex(local, comp); // restores original entity data
-//             }
-//         }
-//     }
+    public ComponentMemory<T> GetArray<T>(int chunkIndex) where T : struct
+    {
+        if (!ValidChunk(chunkIndex))
+            return new();
 
-//     public IEnumerable<Type> GetCompTypes() => arrays.Keys;
-//     public IEnumerable<int> GetLocalEnts() => globalToLocal.Values;
+        return Chunks[chunkIndex].Set.AccessArray<T>();
+    }
 
-//     public int GetLocalIndex(int entIndex)
-//     {
-//         if (globalToLocal.TryGetValue(entIndex, out var index))
-//         {
-//             return index;
-//         }
+    public ref Chunk this[int index]
+    {
+        get
+        {
+            if (ValidChunk(index)) return ref Chunks[index];
+            else throw new IndexOutOfRangeException();
+        }
+    }
 
-//         else throw new KeyNotFoundException($"The entity {entIndex} is not stored here.");
-//     }
+    public bool TryGetChunk(int chunkIndex, out Chunk chunk)
+    {
+        if (!ValidChunk(chunkIndex))
+        {
+            chunk = new(Template, -1);
+            return false;
+        }
 
-//     public bool ContainsComp(Type type) => arrays.ContainsKey(type);
-//     public bool ContainsEnt(int entIndex) => globalToLocal.ContainsKey(entIndex);
-//     public bool IndexExists(int index)
-//     {
-//         if (count < index) return false;
-//         if (index < 0) return false;
-//         if (openSlots.Contains(index)) return false;
-//         return true;
-//     }
+        chunk = Chunks[chunkIndex];
+        return true;
+    }
 
-//     public Archetype SetComponent<T>(int index, T component) where T : struct // gives values to components at index
-//     {
-//         if (IndexExists(index) && ContainsComp(typeof(T)))
-//             EnsureArray<T>()[index] = component;
+    private bool ValidChunk(int index)
+    {
+        return index >= 0 && index < Capacity;
+    }
 
-//         return this;
-//     }
+    public void Expand()
+    {
+        var newCap = Capacity + 512; // slow expansion to reduce unneccessary iterations, this will generally only affect startup times
 
-//     public ref T GetComponent<T>(int index) where T : struct
-//     {
-//         return ref EnsureArray<T>().Ref(index);
-//     }
+        Array.Resize(ref Chunks, newCap);
 
-//     private ComponentArray<T> EnsureArray<T>() where T : struct
-//     {
-//         if (!arrays.TryGetValue(typeof(T), out var array) || array is not ComponentArray<T> typedArray)
-//             throw new InvalidOperationException($"No ComponentArray found for type {typeof(T).Name}.");
-//         return typedArray;
-//     }
-//     public IComponentArray GetArray(Type type)
-//     {
-//         if (!arrays.TryGetValue(type, out var array))
-//             throw new InvalidOperationException($"No ComponentArray found for type {type.Name}.");
+        for (int i = Count; i < newCap; i++)
+        {
+            Chunks[i] = new(Template.Clone(), i);
+            Count++;
+        }
 
-//         return array;
-//     }
-
-//     public IEnumerable<(Type Type, IComponentArray Array)> GetArrays()
-//     {
-//         foreach (var kvp in arrays)
-//         {
-//             yield return (kvp.Key, kvp.Value);
-//         }
-//     }
-
-//     private void SetDefaults(int index) // for first add only
-//     {
-//         foreach (var kvp in arrays)
-//         {
-//             int compIndex = kvp.Value.AddDefault();
-
-//             if (index != compIndex)
-//             {
-//                 throw new InvalidDataException($"Index mismatch: {index} vs {compIndex} for {kvp.Key.Name}");
-//             }
-//         }
-//     }
-
-//     private void ResetDefaults(int index)
-//     {
-//         foreach (var kvp in arrays)
-//         {
-//             kvp.Value.SetDefault(index);
-//         }
-//     }
-
-//     public override string ToString()
-//     {
-//         var types = string.Join('|', arrays.Keys);
-//         return $"ID = {Id} Archetype of composition: {types} : was generated!";
-//     }
-// }
+        Capacity = newCap;
+        indexer.Expand(Capacity);
+    }
+}

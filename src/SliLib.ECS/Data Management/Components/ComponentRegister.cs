@@ -7,21 +7,23 @@ public class ComponentRegister
     private readonly Array[] componentArrays;
     private readonly ComponentInfo[] meta;
     private readonly Dictionary<Type, int> indexer;
-    private readonly Chunk maskManager; // handles the bit positioning of components and chunkcode creation
+    private readonly CodeRegister codeReg; // handles the bit positioning of components and chunkcode creation
     public int Capacity { get; private set; }
     public int Count { get; private set; }
+    public int ComponentArrayCapacity { get; init; }
 
-    public ComponentRegister(int capacity = 256)
+    public ComponentRegister(int capacity = 64, int compArrayCapacities = 512)
     {
         componentArrays = new Array[capacity];
         meta = new ComponentInfo[capacity];
         indexer = new(capacity);
         Capacity = capacity;
-        maskManager = new();
+        codeReg = new();
         Count = 0;
+        ComponentArrayCapacity = compArrayCapacities;
     }
 
-    public void Reg<T>(int componentCapacity = 256) where T : struct
+    public ComponentRegister Reg<T>() where T : struct
     {
         if (!ValidateStruct<T>())
             throw new InvalidOperationException($"{typeof(T)} contains reference fields!");
@@ -39,13 +41,14 @@ public class ComponentRegister
             Id = id,
             Size = size,
             Type = type,
-            Code = maskManager.Register(id)
+            Code = codeReg.Register(id)
         };
 
-        componentArrays[id] = new T[componentCapacity];
+        componentArrays[id] = GC.AllocateArray<T>(ComponentArrayCapacity, pinned: true);
+        return this;
     }
 
-    public ComponentDataTransfer GetComponentData(ChunkMask mask)
+    public ComponentSetTemplate GenerateTemplate(ChunkMask mask)
     {
         var codes = mask.Codes();
         int ctr = 0;
@@ -55,9 +58,9 @@ public class ComponentRegister
 
         foreach (var code in codes)
         {
-            var id = Chunk.CodeToId(code); // component ids also index to their stored locations
+            var id = CodeRegister.CodeToId(code); // component ids also index to their stored locations
 
-            if (!maskManager.IdActive(id))
+            if (!codeReg.IdActive(id))
                 throw new InvalidOperationException(); // should this be continue instead? if so how will i know it skipped a bad component?
 
             arr[ctr] = (Array)componentArrays[id].Clone();
@@ -65,7 +68,22 @@ public class ComponentRegister
             ctr++;
         }
 
-        return new ComponentDataTransfer(arr, inf);
+        return new ComponentSetTemplate(arr, inf, mask, ComponentArrayCapacity);
+    }
+
+    public bool ValidMask(ChunkMask mask)
+    {
+        return codeReg.BaseMask.Contains(mask);
+    }
+
+    public ComponentSet GenerateSetFromMask(ChunkMask mask)
+    {
+        return new ComponentSet(GenerateTemplate(mask));
+    }
+
+    public ComponentSet GenerateSetFromTransfer(ComponentSetTemplate data)
+    {
+        return new ComponentSet(data);
     }
 
     // -----------------------------------Info Access Methods---------------------------------------------
@@ -97,7 +115,7 @@ public class ComponentRegister
 
     public ref ComponentInfo GetInfo(ChunkCode code)
     {
-        var index = Chunk.CodeToId(code);
+        var index = CodeRegister.CodeToId(code);
         if (!RegisteredIndex(index))
             throw new InvalidOperationException($"Component Code {code} does not exist in currently registered components.");
 
@@ -120,6 +138,21 @@ public class ComponentRegister
         return true;
     }
 
+    public bool Contains<T>() where T : struct
+    {
+        return indexer.ContainsKey(typeof(T));
+    }
+
     private bool RegisteredIndex(int index) => index >= 0 && index < Count;
     private bool ValidIndex(int index) => index >= 0 && index < Capacity;
+
+    // DEBUGGING ONLY
+    public T[] DebugGrabArray<T>() where T : struct
+    {
+        if (!indexer.TryGetValue(typeof(T), out var index))
+        {
+            throw new KeyNotFoundException();
+        }
+        return Unsafe.As<T[]>(componentArrays[index]);
+    }
 }

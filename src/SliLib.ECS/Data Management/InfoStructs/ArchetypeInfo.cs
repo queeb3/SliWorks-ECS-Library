@@ -1,8 +1,24 @@
 namespace SliLib.ECS;
 
-public struct ArchInfo
+/// <summary>
+/// Meta card for everything related to a specific <see cref="Archetype"/>.
+/// <br/><br/>
+/// Holds: Index as Id | Instance
+/// </summary>
+public record ArchInfo
 {
+    /// <summary>
+    /// unique Id for every <see cref="Archetype"/> which also acts as its indexer.
+    /// </summary>
     public readonly int Id;
-    public readonly ChunkMask Mask; // component composition
-    public int Index; // index of archetype for specific mask
+    /// <summary>
+    /// Instance of the <see cref="Archetype"/>.
+    /// </summary>
+    public Archetype Instance { get; init; }
+
+    public ArchInfo(int id, ComponentSetTemplate template)
+    {
+        Id = id;
+        Instance = new Archetype(template);
+    }
 }

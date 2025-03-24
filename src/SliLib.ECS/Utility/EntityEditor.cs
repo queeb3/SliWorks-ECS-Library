@@ -44,7 +44,7 @@ public class EntityEditor
     public Chunk GetEntityChunk(int entity)
     {
         var info = ar.GetEntityInfo(entity);
-        ar.GetEntityArchetype(entity).TryGetChunk(info.ChunkIndex, out var chunk);
+        ar.GetEntityArchetype(ar.GetEntityInfo(entity)).TryGetChunk(info.ChunkIndex, out var chunk);
         return chunk;
     }
 }

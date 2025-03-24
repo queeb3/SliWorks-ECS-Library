@@ -5,13 +5,16 @@ public class ArchetypeRegistry
     private readonly ComponentRegister CR;
 
     private readonly Dictionary<int, EntityInfo> influencedEntities; // ent register id to ents index
-    private readonly Dictionary<ChunkMask, int> maskIndexer;
+    private readonly Queue<int> entDumpster;
+
+    private readonly MaskCacher maskCache;
     private ArchInfo[] archs;
 
     public int Count { get; private set; }
     public int Capacity { get; private set; }
 
     public int EntCount { get; private set; }
+    private int callsTillClean;
 
     public ArchetypeRegistry(ComponentRegister register, int capacity = 64, int entsCap = 1024)
     {
@@ -19,38 +22,57 @@ public class ArchetypeRegistry
 
         Capacity = capacity;
         archs = new ArchInfo[Capacity];
-        maskIndexer = new(Capacity);
+        maskCache = new(Capacity);
         Count = 0;
 
         influencedEntities = new(entsCap);
         EntCount = 0;
+
+        entDumpster = new(12000);
     }
 
-    public EntityInfo AddEntity(EntityInfo info, ChunkMask mask)
+    public EntityInfo AddEntity(EntityInfo entity, ChunkMask mask)
     {
-        if (!CR.ValidMask(mask)) return info;
-        if (influencedEntities.ContainsKey(info.Id)) return info;
+        if (!CR.ValidMask(mask)) return entity;
+        if (influencedEntities.ContainsKey(entity.Id)) return entity;
 
-        influencedEntities[info.Id] = info;
+        // must always invalidate bad data just incase it is shared between other ARs
+        var newInfo = new EntityInfo(entity.Id);
+        var arch = GetArchetype(mask).Instance;
+
+        influencedEntities[newInfo.Id] = newInfo;
+        arch.Add(newInfo);
         EntCount++;
 
-        var arch = GetArchetype(mask);
-        arch.Add(info);
-        return info;
+        EmptyDumpster();
+        callsTillClean++;
+        return newInfo;
+    }
+
+    public void RemoveEntity(int entity)
+    {
+        if (!influencedEntities.TryGetValue(entity, out var info))
+        {
+            return;
+        }
+
+        entDumpster.Enqueue(entity);
+        EmptyDumpster();
     }
 
     public EntityInfo GetEntityInfo(int entity)
     {
-        return influencedEntities[entity];
+        if (!influencedEntities.TryGetValue(entity, out var info))
+        {
+            return new(-1);
+        }
+
+        return info;
     }
 
     public Archetype GetEntityArchetype(EntityInfo entity)
     {
         return archs[entity.ArchetypeId].Instance;
-    }
-    public Archetype GetEntityArchetype(int entity)
-    {
-        return archs[influencedEntities[entity].ArchetypeId].Instance;
     }
 
     public bool HasEntity(EntityInfo entity)
@@ -58,14 +80,35 @@ public class ArchetypeRegistry
         return influencedEntities.ContainsKey(entity.Id);
     }
 
-    public Archetype GetArchetype(ChunkMask mask)
+    public ref ArchInfo GetArchetype(ChunkMask mask)
     {
-        if (!maskIndexer.TryGetValue(mask, out var index))
+        var maskIndex = maskCache.GetMaskId(mask);
+        if (maskIndex == -1)
         {
-            return archs[GenerateNewArchetype(mask)].Instance;
+            return ref archs[GenerateNewArchetype(mask)];
+        }
+        else if (archs[maskIndex] is null)
+        {
+            return ref archs[GenerateNewArchetype(mask)];
         }
 
-        return archs[index].Instance;
+        return ref archs[maskIndex];
+    }
+
+    public Query Query(ChunkMask mask)
+    {
+        var masks = maskCache.GetContainedIn(mask);
+        var len = masks.Length;
+        var query = new Query(this, mask, true);
+
+        for (int i = 0; i < len; i++)
+        {
+            ref var info = ref GetArchetype(masks[i]);
+            if (info is null || i >= Count) continue;
+            ref var chunk = ref info.Instance.QueryActiveChunks();
+            query.Add(ref chunk, ref info);
+        }
+        return query;
     }
 
     private int GenerateNewArchetype(ChunkMask mask) // generates archetype when one is not found
@@ -75,9 +118,31 @@ public class ArchetypeRegistry
         if (Count == Capacity) ExpandArchs();
 
         archs[info.Id] = info;
-        maskIndexer[mask] = info.Id;
+        maskCache.Add(mask);
 
         return info.Id;
+    }
+
+    private void EmptyDumpster()
+    {
+        var itr = entDumpster.Count;
+        if (itr >= 10000 || callsTillClean >= 20000)
+        {
+            for (int i = 0; i < itr; i++)
+            {
+                var ent = entDumpster.Dequeue();
+                var info = influencedEntities[ent];
+                var state = archs[info.ArchetypeId].Instance.Remove(info);
+                if (state == 0) influencedEntities.Remove(ent);
+            }
+
+            callsTillClean = 0;
+        }
+
+        // // state legend:
+        // // 0 = success
+        // // 1 = out of range
+        // // 2 = entity is corrupted somehow
     }
 
     private void ExpandArchs()

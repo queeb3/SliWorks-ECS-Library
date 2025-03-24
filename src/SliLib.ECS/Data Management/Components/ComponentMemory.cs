@@ -5,6 +5,7 @@ namespace SliLib.ECS;
 public ref struct ComponentMemory<T> where T : struct
 {
     private Span<T> components;
+    public int Length { get => components.Length; }
 
     public ComponentMemory(ref Array compArr)
     {

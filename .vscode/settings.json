@@ -6,12 +6,16 @@
   "files.insertFinalNewline": true,
   "files.trimFinalNewlines": true,
   "files.autoSave": "afterDelay",
+
   //------------------------------------------------------------------------------
+
   // debug settings
   "debug.terminal.clearBeforeReusing": true,
   "debug.enableStatusBarColor": true,
   "debug.console.wordWrap": true,
+
   //------------------------------------------------------------------------------
+
   // explorer settings
   "explorer.openEditors.sortOrder": "editorOrder",
   "explorer.enableDragAndDrop": true,
@@ -20,11 +24,15 @@
   "explorer.compactFolders": true,
   "explorer.confirmDelete": false,
   "explorer.autoReveal": true,
+
   //------------------------------------------------------------------------------
+
   // security settings
   "security.workspace.trust.untrustedFiles": "open",
   "security.workspace.trust.banner": "always",
+
   //------------------------------------------------------------------------------
+
   // zen settings
   "zenMode.silentNotifications": true,
   "zenMode.hideActivityBar": false,
@@ -34,12 +42,16 @@
   "zenMode.hideStatusBar": true,
   "zenMode.fullScreen": true,
   "zenMode.restore": true,
+
   //------------------------------------------------------------------------------
+
   // window settings
   "window.newWindowDimensions": "inherit",
   "window.commandCenter": true,
   "window.zoomLevel": 0.3,
+
   //------------------------------------------------------------------------------
+
   // workbench settings
   "workbench.colorTheme": "Bearded Theme Black & Ruby Soft",
   "workbench.startupEditor": "welcomePageInEmptyWorkbench",
@@ -51,6 +63,7 @@
   "workbench.settings.applyToAllProfiles": [
     "csharp.semanticHighlighting.enabled"
   ],
+
   // editor
   "workbench.editor.editorActionsLocation": "titleBar",
   "workbench.editor.titleScrollbarSizing": "default",
@@ -68,16 +81,21 @@
   "workbench.editor.enablePreview": true,
   "workbench.editor.tabSizing": "fixed",
   "workbench.editor.wrapTabs": true,
+
   //------------------------------------------------------------------------------
+
   // terminal settings
   "terminal.integrated.smoothScrolling": true,
   "terminal.integrated.cursorBlinking": true,
+
   //------------------------------------------------------------------------------
+
   // editor settings
   "editor.accessibilitySupport": "off",
   "editor.linkedEditing": true,
   "editor.tabFocusMode": false,
   "editor.glyphMargin": true, // breakpoints and ruler widgets
+
   // suggestions
   "editor.suggest.snippetsPreventQuickSuggestions": true,
   "editor.suggest.selectionMode": "whenTriggerCharacter",
@@ -100,6 +118,7 @@
     "comments": "off",
     "strings": "off"
   },
+
   // formatting
   "editor.formatOnSaveMode": "file",
   "editor.defaultFormatter": null,
@@ -110,6 +129,7 @@
     "source.fixAll": "explicit",
     "source.sortImports": "explicit"
   },
+
   // language specific
   "[csharp]": {
     "editor.defaultFormatter": "ms-dotnettools.csharp"
@@ -137,37 +157,47 @@
   "[xaml]": {},
   "[yaml]": {},
   "[xml]": {},
+
   // rendering and highlighting
   "editor.bracketPairColorization.independentColorPoolPerBracketType": true,
   "editor.bracketPairColorization.enabled": true,
+
   "editor.unicodeHighlight.nonBasicASCII": false,
   "editor.semanticHighlighting.enabled": false,
   "editor.copyWithSyntaxHighlighting": true,
+
   "editor.renderControlCharacters": true,
   "editor.emptySelectionClipboard": true,
+
   "editor.padding.bottom": 0,
   "editor.padding.top": 16,
+
   "editor.wrappingIndent": "deepIndent",
   "editor.wrappingStrategy": "advanced",
   "editor.wordWrap": "wordWrapColumn",
-  "editor.wordWrapColumn": 300,
+  "editor.wordWrapColumn": 200,
+
   // font
   "editor.fontFamily": "ProggyClean Nerd Font",
   "editor.fontLigatures": true,
   "editor.fontWeight": "400",
   "editor.fontSize": 18,
   "terminal.integrated.fontSize": 18,
+
   // minimap
   "editor.minimap.autohide": true,
   "editor.minimap.enabled": false,
+
   // breadcrumbs
   "breadcrumbs.filePath": "last",
   "breadcrumbs.enabled": false,
   "breadcrumbs.icons": true,
+
   // white space
   "editor.experimentalWhitespaceRendering": "font",
   "editor.renderWhitespace": "none",
   "editor.trimAutoWhitespace": false,
+
   // line
   "editor.renderLineHighlightOnlyWhenFocus": false,
   "editor.renderLineHighlight": "gutter",
@@ -177,12 +207,14 @@
   "editor.indentSize": "tabSize",
   "editor.lineHeight": 14,
   "editor.tabSize": 4,
+
   // cursor
   "editor.cursorSmoothCaretAnimation": "explicit",
   "editor.cursorSurroundingLinesStyle": "all",
-  "editor.cursorSurroundingLines": 10,
+  "editor.cursorSurroundingLines": 15,
   "editor.cursorBlinking": "expand",
   "editor.cursorStyle": "block",
+
   // custom textmate token
   "editor.tokenColorCustomizations": {
     "comments": "#DAA520",
@@ -262,41 +294,60 @@
   "output.smartScroll.enabled": true,
   "editor.fastScrollSensitivity": 8,
   "editor.smoothScrolling": true,
+
   // sticky scroll
   "editor.stickyScroll.defaultModel": "indentationModel",
   "editor.stickyScroll.scrollWithEditor": true,
   "editor.stickyScroll.maxLineCount": 6,
   "editor.stickyScroll.enabled": false,
+
   //------------------------------------------------------------------------------
+
   // extension settings
   // remote settings
   "remote.downloadExtensionsLocally": true,
   "remote.tunnels.access.preventSleep": true,
+
   // errorlens extension
   "errorLens.followCursor": "allLinesExceptActive",
   "errorLens.scrollbarHackEnabled": true,
+
   // git extension
   "git.autofetch": true,
   "git.autorefresh": true,
+
   // custom css and javascript to alter appearance of editor
   "vscode_custom_css.imports": [
     "file:///G:/Git%20Repos/Custom%20VScode%20repos/CustomCSS.css",
     "file:///G:/Git%20Repos/Custom%20VScode%20repos/CustomJS.js"
   ],
+
   // code spell checker extension
   "cSpell.language": "en, en-GB",
   "cSpell.caseSensitive": true,
   "cSpell.userWords": [
+    "archs",
+    "autofetch",
+    "autohide",
+    "autorefresh",
     "Avalonia",
     "cooldown",
     "Cooldown",
     "Cooldowns",
+    "crits",
+    "Crits",
     "debuff",
     "debuffs",
     "dont",
     "dotnet",
     "eclass",
+    "ents",
+    "Ents",
+    "errorlens",
+    "esbenp",
     "fizzbuzz",
+    "forgor",
+    "mathed",
     "Monokai",
     "nums",
     "omnisharp",
@@ -306,10 +357,7 @@
     "regens",
     "Slithe",
     "subceed",
-    "Teehee",
-    "mathed",
-    "Ents",
-    "ents"
+    "Teehee"
   ],
   // csharp settings
   "dotnet.typeMembers.propertyGenerationBehavior": "preferAutoProperties",

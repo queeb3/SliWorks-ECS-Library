@@ -98,7 +98,7 @@ public class EntityRegister
     public int Capacity { get; private set; }
     public int Count { get; private set; } // entities created
     public int BCount { get; private set; } // block count
-    public bool Resizable { get; private set; }
+    // public bool Resizable { get; private set; }
 
     // NOTE: cap is always multiplied by 512
     // NOTE: can do a math operation like 100000/512 to get actual cap
@@ -110,13 +110,13 @@ public class EntityRegister
     /// </summary>
     /// <param name="capacity">Initial number of entity blocks (each block holds 512 entities).</param>
     /// <param name="resizable">If `true`, the register will grow dynamically when full.</param>
-    public EntityRegister(int capacity = 64, bool resizable = false)
+    public EntityRegister(int capacity = 64/*, bool resizable = false*/)
     {
         blocks = new EntityBlock[capacity];
         fullBlocks = new bool[capacity];
         missingBits = new(32);
         Capacity = capacity;
-        Resizable = resizable;
+        // Resizable = resizable;
 
         Count = 0;
         BCount = 0;
@@ -252,8 +252,8 @@ public class EntityRegister
 
     private ref EntityBlock CreateNewBlock(out int newBIndex)
     {
-        if (!Resizable && BCount == Capacity) throw new EntityLimitReachedException();
-        else if (BCount >= Capacity) Resize();
+        // if (!Resizable && BCount == Capacity) throw new EntityLimitReachedException();
+        if (BCount >= Capacity) Resize();
 
         blocks[BCount++] = new();
         newBIndex = BCount - 1;

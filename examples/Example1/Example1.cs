@@ -11,7 +11,7 @@ class Program
     {
         Nex = Nexus.Create();
 
-        ER = new EntityRegister(64, resizable: true);
+        ER = new EntityRegister(64);
         CR = new ComponentRegister(capacity: 256);
 
         Nex.BindEntityRegister(ER);

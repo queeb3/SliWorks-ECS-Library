@@ -19,6 +19,6 @@ public record ArchInfo
     public ArchInfo(int id, ComponentSetTemplate template)
     {
         Id = id;
-        Instance = new Archetype(template);
+        Instance = new Archetype(Id, template);
     }
 }

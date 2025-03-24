@@ -10,9 +10,9 @@ class Program
 
     public static void Main(string[] args)
     {
-        var ents = new EntityRegister(capacity: 16, resizable: true);
+        var ents = new EntityRegister(capacity: 16);
 
-        Console.WriteLine($"start: ecount={ents.Count}, bcount={ents.BCount}, cap={ents.Capacity}, resizable={ents.Resizable}");
+        Console.WriteLine($"start: ecount={ents.Count}, bcount={ents.BCount}, cap={ents.Capacity}");
 
         // InfoTest(ref ents);
         // CreateTest(ref ents);
@@ -24,7 +24,7 @@ class Program
     static void RegState(ref EntityRegister reg, int capOverwrite = 16)
     {
         Console.WriteLine($"RegState: {reg.Count} | {reg.BCount} | {reg.Capacity}");
-        reg = new(capOverwrite, true); // reset for next tests
+        reg = new(capOverwrite); // reset for next tests
     }
 
     static void CreateTest(ref EntityRegister reg) // see if i can create a fresh entity

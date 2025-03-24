@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Runtime.CompilerServices;
 
 namespace SliLib.ECS;
 
@@ -19,6 +20,7 @@ public class BitIndexer
     /// Divided by 64 to get actual length if the bit array.
     /// </summary>
     public int TrackingCount { get; private set; }
+    public int HighestBitAllocated { get; private set; }
 
     // this cap should be set to the cap of the array its meant to track divided by 64
     public BitIndexer(int tracking)
@@ -31,6 +33,7 @@ public class BitIndexer
     /// Checks if a index is full or set.
     /// </summary>
     /// <returns><c>True</c> if bit index is set.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsOccupied(int index)
     {
         var b = IndexToBit(index, out var a);
@@ -43,6 +46,7 @@ public class BitIndexer
     /// NOTE: this can be a full Array or an item is already at this index. - Occupied|Full
     /// </summary>
     /// <returns>An <c>int</c> representation of which bit is free or -1 for notfound/outofbounds</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int FindFreeIndex()
     {
         int index;
@@ -65,6 +69,7 @@ public class BitIndexer
     /// <summary>
     /// Sets a bit to 0, marking it as available.
     /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Unset(int index)
     {
         Bits[index >> 6] &= ~(1UL << (index & 0b111111));
@@ -73,6 +78,7 @@ public class BitIndexer
     /// <summary>
     /// Sets a bit to 1, marking it as Occupied.
     /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Set(int index)
     {
         Bits[index >> 6] |= 1UL << (index & 0b111111);
@@ -84,6 +90,7 @@ public class BitIndexer
     /// NOTE: Has no attachment to the bit array in this instance.
     /// </summary>
     /// <returns>An <c>int</c> for bit; <c>Out</c> is <c>array index</c> for which ulong the bit resides.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int IndexToBit(int index, out int arrayIndex)
     {
         arrayIndex = index >> 6;
@@ -95,6 +102,7 @@ public class BitIndexer
     /// <br/><br/>
     /// DANGER: Do not set lower ot you may lose data.
     /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Expand(int newTrack)
     {
         Array.Resize(ref Bits, (newTrack + 63) >> 6); // account for possible missing size with 63 offset

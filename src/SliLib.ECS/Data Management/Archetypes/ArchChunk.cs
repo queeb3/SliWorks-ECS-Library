@@ -1,12 +1,13 @@
 namespace SliLib.ECS;
 
-public class Chunk(ComponentSetTemplate data, int initialIndex)
+public class Chunk(ComponentSetTemplate data, int index)
 {
     private Stack<int> free = new(1);
-    public ComponentSet Set = new(data.Clone());
-    public int[] Ents = new int[data.Capacity]; // index = local id | stored int = global id
-    public int Index = initialIndex;
+    private ComponentSet Components = new(data.Clone());
+    private int[] Ents = new int[data.Capacity]; // index = local id | stored int = global id
+    public int Index { get; init; } = index;
     public int Count { get; private set; } = 0;
+    public int ChunkSize { get => Components.SizeOfSet + (sizeof(int) * Components.ArrayCaps); }
 
     public int AddEntity(EntityInfo info)
     {
@@ -22,7 +23,7 @@ public class Chunk(ComponentSetTemplate data, int initialIndex)
             return index;
         }
 
-        if (Count == Set.ArrayCaps) return -1; // full
+        if (Count == Components.ArrayCaps) return -1; // full
 
         index = Count++;
         Ents[index] = info.Id;
@@ -44,13 +45,12 @@ public class Chunk(ComponentSetTemplate data, int initialIndex)
         info.LocalId = -1;
         info.ChunkIndex = -1;
 
-        return 0;
+        return 0; // success
     }
 
-    public void AddComp<T>(int index, T data) where T : struct
+    public ComponentMemory<T> AccessArray<T>() where T : struct
     {
-        if (!Valid(index)) return;
-        Set.Edit<T>(index) = data;
+        return Components.AccessArray<T>();
     }
 
     private bool Valid(int index)

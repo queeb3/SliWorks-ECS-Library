@@ -89,6 +89,7 @@ internal unsafe struct PaddedArray
 
     [DllImport("msvcrt.dll", CallingConvention = CallingConvention.Cdecl)]
     private static extern int memcmp(void* ptr1, void* ptr2, UIntPtr count); // byte comparison since == doesnt work
+    
     public bool Contains<T>(T item, out int index) where T : unmanaged
     {
         byte* itemPtr = (byte*)&item; // pointer to address

@@ -1,8 +1,3 @@
-using System;
-using System.Numerics;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-
 namespace SliLib.DataStructures;
 
 internal unsafe struct PaddedArray

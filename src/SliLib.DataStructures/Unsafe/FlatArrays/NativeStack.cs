@@ -1,6 +1,3 @@
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-
 namespace SliLib.DataStructures;
 
 public unsafe struct NativeStack<T> where T : unmanaged

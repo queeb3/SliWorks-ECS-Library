@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices;
-
 namespace SliLib.DataStructures;
 
 internal unsafe struct DirectArray

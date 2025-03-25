@@ -1,5 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+  <ItemGroup>
+    <Using Include="System"/>
+    <Using Include="System.Numerics"/>
+    <Using Include="System.Runtime.InteropServices"/>
+    <Using Include="System.Runtime.CompilerServices"/>
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>

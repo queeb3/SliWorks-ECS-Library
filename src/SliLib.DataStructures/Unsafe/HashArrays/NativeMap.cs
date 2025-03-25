@@ -1,11 +1,8 @@
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-
 namespace SliLib.DataStructures;
 
 internal unsafe struct MapNode<T> where T : unmanaged
 {
-    private T* buffer; // values
+    private T* buffer;
     private IndexEncoder encoder;
 
     private int size;
@@ -80,7 +77,6 @@ public unsafe struct NativeMap<TKey, TValue> where TKey : unmanaged where TValue
     private int length;
     private int count;
 
-    [SkipLocalsInit]
     public NativeMap(int initialCapacity)
     {
         length = initialCapacity;
@@ -102,15 +98,15 @@ public unsafe struct NativeMap<TKey, TValue> where TKey : unmanaged where TValue
 
     }
 
-    // public ref TValue Get(TKey key)
-    // {
+    public ref TValue Get(TKey key)
+    {
 
-    // }
+    }
 
-    // public bool ContainsKey(TKey key)
-    // {
+    public bool ContainsKey(TKey key)
+    {
 
-    // }
+    }
 
     public void Clear()
     {
@@ -155,7 +151,7 @@ public unsafe struct NativeMap<TKey, TValue> where TKey : unmanaged where TValue
 
         // TODO not going to copy blocks but need store all values in a separate array for rehashing
         Unsafe.CopyBlock(destination, buckets, (uint)size);
-        Unsafe.InitBlock(destination + length, 0, (uint)(newSize));
+        Unsafe.InitBlock(destination + length, 0, (uint)(newSize-size));
 
 
         allocated.Free();

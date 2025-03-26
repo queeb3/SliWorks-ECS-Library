@@ -68,7 +68,7 @@ internal unsafe struct MapNode<T> where T : unmanaged
     }
 }
 
-public unsafe struct NativeMap<TKey, TValue> where TKey : unmanaged where TValue : unmanaged
+public unsafe struct RawDictionary<TKey, TValue> where TKey : unmanaged where TValue : unmanaged
 {
     private MapNode<TValue>* buckets;
     private IndexEncoder allocated;
@@ -77,7 +77,7 @@ public unsafe struct NativeMap<TKey, TValue> where TKey : unmanaged where TValue
     private int length;
     private int count;
 
-    public NativeMap(int initialCapacity)
+    public RawDictionary(int initialCapacity)
     {
         length = initialCapacity;
         size = sizeof(MapNode<TValue>) * length;
@@ -98,15 +98,15 @@ public unsafe struct NativeMap<TKey, TValue> where TKey : unmanaged where TValue
 
     }
 
-    public ref TValue Get(TKey key)
-    {
+    // public ref TValue Get(TKey key)
+    // {
 
-    }
+    // }
 
-    public bool ContainsKey(TKey key)
-    {
+    // public bool ContainsKey(TKey key)
+    // {
 
-    }
+    // }
 
     public void Clear()
     {

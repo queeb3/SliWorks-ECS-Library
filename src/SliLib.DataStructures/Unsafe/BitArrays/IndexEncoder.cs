@@ -39,24 +39,32 @@ internal unsafe struct IndexEncoder
 
     public int FirstFreeBit()
     {
-        int index = -1;
         for (int i = 0; i < length; i++)
         {
             ulong inverted = ~bits[i];
-            if (inverted != 0) index = (i * 64) + BitOperations.TrailingZeroCount(inverted);
+
+            if (inverted != 0)
+            {
+                int index = (i * 64) + BitOperations.TrailingZeroCount(inverted);
+                return index < maxIndex ? index : -1;
+            }
         }
-        return (maxIndex <= index) ? -1 : index;
+        return -1;
     }
 
     public int FirstOccupiedBit()
     {
-        int index = -1;
         for (int i = 0; i < length; i++)
         {
             ulong word = bits[i];
-            if (word != 0) index = (i * 64) + BitOperations.TrailingZeroCount(word);
+
+            if (word != 0)
+            {
+                int index = (i * 64) + BitOperations.TrailingZeroCount(word);
+                return index < maxIndex ? index : -1;
+            }
         }
-        return (maxIndex <= index) ? -1 : index;
+        return -1;
     }
 
     public int LastFreeBit()
@@ -115,6 +123,8 @@ internal unsafe struct IndexEncoder
 
     public bool IsOccupied(int index)
     {
+        if (index >= maxIndex || index < 0) return false;
+
         int i = index >> 6;  // find correct ulong
         int bit = index & 0b111111; // find bit position
         return (bits[i] & (1UL << bit)) != 0;
@@ -124,8 +134,7 @@ internal unsafe struct IndexEncoder
     {
         if (newIndexCount < maxIndex) return;
 
-        int newLength = newIndexCount / 64;
-        if (newLength == 0) newLength = 1;
+        int newLength = (newIndexCount + 63) / 64;
 
         ulong* newBits = (ulong*)Marshal.AllocHGlobal(newLength * sizeof(ulong));
 

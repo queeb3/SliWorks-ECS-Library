@@ -3,6 +3,7 @@
   <ItemGroup>
     <Using Include="System"/>
     <Using Include="System.Numerics"/>
+    <Using Include="System.Runtime.Intrinsics"/>
     <Using Include="System.Runtime.InteropServices"/>
     <Using Include="System.Runtime.CompilerServices"/>
   </ItemGroup>
